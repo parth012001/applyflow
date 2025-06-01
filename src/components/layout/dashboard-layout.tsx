@@ -118,7 +118,7 @@ export default function DashboardLayout({
             <div className="flex flex-1" />
             <div className="ml-4 flex items-center md:ml-6">
               <Link
-                href="/profile"
+                href="/dashboard/profile"
                 className="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500"
               >
                 <UserCircleIcon className="h-6 w-6" />
