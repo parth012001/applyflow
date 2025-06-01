@@ -205,6 +205,21 @@ function EditApplicationModal({ application, onClose, onSave }: {
   );
 }
 
+function DeleteConfirmationModal({ onConfirm, onCancel, company }: { onConfirm: () => void; onCancel: () => void; company: string }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="bg-white rounded-lg shadow-lg max-w-sm w-full p-6 relative">
+        <h2 className="text-lg font-bold mb-2">Delete Application</h2>
+        <p className="mb-4">Are you sure you want to delete the application for <span className="font-semibold">{company}</span>? This action cannot be undone.</p>
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button variant="destructive" onClick={onConfirm}>Delete</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ApplicationsTable() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
@@ -213,6 +228,7 @@ export function ApplicationsTable() {
   const [statusFilter, setStatusFilter] = useState("");
   const [modalApp, setModalApp] = useState<Application | null>(null);
   const [editApp, setEditApp] = useState<Application | null>(null);
+  const [deleteApp, setDeleteApp] = useState<Application | null>(null);
 
   const debouncedCompany = useDebounce(companySearch, 400);
 
@@ -238,6 +254,25 @@ export function ApplicationsTable() {
 
   const handleSaveEdit = (updated: Application) => {
     setApplications((apps) => apps.map((a) => (a.id === updated.id ? updated : a)));
+  };
+
+  const handleDelete = async (app: Application) => {
+    setDeleteApp(app);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteApp) return;
+    try {
+      const res = await fetch(`/api/applications/${deleteApp.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete application");
+      setApplications((apps) => apps.filter((a) => a.id !== deleteApp.id));
+      toast.success("Application deleted!");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete application");
+    } finally {
+      setDeleteApp(null);
+    }
   };
 
   if (loading) return <div>Loading applications...</div>;
@@ -317,7 +352,7 @@ export function ApplicationsTable() {
                   <Button size="sm" variant="outline" onClick={() => setEditApp(app)}>
                     Edit
                   </Button>
-                  <Button size="sm" variant="destructive" onClick={() => alert(`Delete ${app.id}`)}>
+                  <Button size="sm" variant="destructive" onClick={() => handleDelete(app)}>
                     Delete
                   </Button>
                 </td>
@@ -334,6 +369,13 @@ export function ApplicationsTable() {
           application={editApp}
           onClose={() => setEditApp(null)}
           onSave={handleSaveEdit}
+        />
+      )}
+      {deleteApp && (
+        <DeleteConfirmationModal
+          company={deleteApp.company}
+          onCancel={() => setDeleteApp(null)}
+          onConfirm={confirmDelete}
         />
       )}
     </div>

@@ -93,4 +93,30 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
     console.error("Error updating application:", error);
     return NextResponse.json({ error: "Failed to update application" }, { status: 500 });
   }
+}
+
+export async function DELETE(req: Request, context: { params: { id: string } }) {
+  const { id } = await context.params;
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const application = await prisma.application.findUnique({ where: { id } });
+    if (!application || application.userId !== user.id) {
+      return NextResponse.json({ error: "Application not found" }, { status: 404 });
+    }
+
+    await prisma.application.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting application:", error);
+    return NextResponse.json({ error: "Failed to delete application" }, { status: 500 });
+  }
 } 
