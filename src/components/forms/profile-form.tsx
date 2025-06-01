@@ -12,7 +12,6 @@ export function ProfileForm() {
   const { data: session, update } = useSession();
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState(session?.user?.name || "");
-  const [email, setEmail] = useState(session?.user?.email || "");
   const [image, setImage] = useState(session?.user?.image || "");
   const [uploading, setUploading] = useState(false);
 
@@ -68,14 +67,14 @@ export function ProfileForm() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email }),
+        body: JSON.stringify({ name }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to update profile");
       }
 
-      await update({ ...session, user: { ...session?.user, name, email } });
+      await update({ ...session, user: { ...session?.user, name } });
       toast.success("Profile updated successfully");
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -133,11 +132,13 @@ export function ProfileForm() {
           <Input
             id="email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={loading}
-            required
+            value={session?.user?.email || ""}
+            disabled
+            className="bg-gray-50"
           />
+          <p className="mt-1 text-sm text-gray-500">
+            Email cannot be changed
+          </p>
         </div>
       </div>
 
