@@ -90,8 +90,17 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Parse query params
+    const { searchParams } = new URL(req.url);
+    const status = searchParams.get("status") || undefined;
+    const company = searchParams.get("company") || undefined;
+
     const applications = await prisma.application.findMany({
-      where: { userId: user.id },
+      where: {
+        userId: user.id,
+        ...(status ? { status } : {}),
+        ...(company ? { company: { contains: company, mode: "insensitive" } } : {}),
+      },
       orderBy: { appliedDate: "desc" },
     });
 
