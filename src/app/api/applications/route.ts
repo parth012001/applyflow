@@ -76,4 +76,28 @@ export async function POST(req: Request) {
     console.error("Error creating application:", error);
     return NextResponse.json({ error: "Failed to create application" }, { status: 500 });
   }
+}
+
+export async function GET(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const applications = await prisma.application.findMany({
+      where: { userId: user.id },
+      orderBy: { appliedDate: "desc" },
+    });
+
+    return NextResponse.json({ applications });
+  } catch (error) {
+    console.error("Error fetching applications:", error);
+    return NextResponse.json({ error: "Failed to fetch applications" }, { status: 500 });
+  }
 } 
