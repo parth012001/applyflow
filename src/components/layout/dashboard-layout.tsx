@@ -15,7 +15,7 @@ import {
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Applications", href: "/applications", icon: BriefcaseIcon },
+  { name: "Applications", href: "/dashboard/applications", icon: BriefcaseIcon },
   { name: "Tech Prep", href: "/tech-prep", icon: CodeBracketIcon },
   { name: "Analytics", href: "/analytics", icon: ChartBarIcon },
 ];
