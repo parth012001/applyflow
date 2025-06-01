@@ -30,6 +30,7 @@ model Application {
   notes        String?
   followUpDate DateTime?
   referral     String?
+  resumeUrl    String?
   userId       String
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
