@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const statusOptions = [
   "",
@@ -32,12 +33,186 @@ function useDebounce<T>(value: T, delay: number) {
   return debouncedValue;
 }
 
+function ApplicationModal({ application, onClose }: { application: Application; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl font-bold"
+          aria-label="Close"
+        >
+          ×
+        </button>
+        <h2 className="text-xl font-bold mb-4">Application Details</h2>
+        <div className="space-y-2">
+          <div><strong>Company:</strong> {application.company}</div>
+          <div><strong>Position:</strong> {application.position}</div>
+          <div><strong>Status:</strong> {application.status}</div>
+          <div><strong>Applied Date:</strong> {application.appliedDate ? new Date(application.appliedDate).toLocaleDateString() : "-"}</div>
+          <div><strong>Follow Up Date:</strong> {application.followUpDate ? new Date(application.followUpDate).toLocaleDateString() : "-"}</div>
+          <div><strong>Notes:</strong> {application.notes || "-"}</div>
+          <div><strong>Resume:</strong> {application.resumeUrl ? (
+            <a href={application.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View Resume</a>
+          ) : "-"}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditApplicationModal({ application, onClose, onSave }: {
+  application: Application;
+  onClose: () => void;
+  onSave: (updated: Application) => void;
+}) {
+  const [company, setCompany] = useState(application.company);
+  const [position, setPosition] = useState(application.position);
+  const [status, setStatus] = useState(application.status);
+  const [appliedDate, setAppliedDate] = useState(application.appliedDate?.slice(0, 10) || "");
+  const [followUpDate, setFollowUpDate] = useState(application.followUpDate?.slice(0, 10) || "");
+  const [notes, setNotes] = useState(application.notes || "");
+  const [resume, setResume] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("company", company);
+      formData.append("position", position);
+      formData.append("status", status);
+      formData.append("appliedDate", appliedDate);
+      if (followUpDate) formData.append("followUpDate", followUpDate);
+      if (notes) formData.append("notes", notes);
+      if (resume) formData.append("resume", resume);
+
+      const res = await fetch(`/api/applications/${application.id}`, {
+        method: "PUT",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update application");
+      toast.success("Application updated!");
+      onSave(data.application);
+      onClose();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update application");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative space-y-4">
+        <button
+          onClick={onClose}
+          type="button"
+          className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-2xl font-bold"
+          aria-label="Close"
+        >
+          ×
+        </button>
+        <h2 className="text-xl font-bold mb-2">Edit Application</h2>
+        <div className="grid grid-cols-1 gap-4">
+          <div>
+            <label className="block text-sm font-medium">Company</label>
+            <input
+              className="border rounded px-3 py-2 w-full"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Position</label>
+            <input
+              className="border rounded px-3 py-2 w-full"
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Status</label>
+            <select
+              className="border rounded px-3 py-2 w-full"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              required
+              disabled={loading}
+            >
+              {statusOptions.filter(Boolean).map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Applied Date</label>
+            <input
+              type="date"
+              className="border rounded px-3 py-2 w-full"
+              value={appliedDate}
+              onChange={(e) => setAppliedDate(e.target.value)}
+              required
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Follow Up Date</label>
+            <input
+              type="date"
+              className="border rounded px-3 py-2 w-full"
+              value={followUpDate}
+              onChange={(e) => setFollowUpDate(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Notes</label>
+            <textarea
+              className="border rounded px-3 py-2 w-full"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={3}
+              disabled={loading}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Resume/CV</label>
+            <input
+              type="file"
+              accept="application/pdf,.doc,.docx"
+              className="border rounded px-3 py-2 w-full"
+              onChange={(e) => setResume(e.target.files?.[0] || null)}
+              disabled={loading}
+            />
+            {application.resumeUrl && (
+              <a href={application.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-sm mt-1 inline-block">View Current Resume</a>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 mt-4">
+          <Button type="button" variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button type="submit" disabled={loading}>{loading ? "Saving..." : "Save Changes"}</Button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export function ApplicationsTable() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [companySearch, setCompanySearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [modalApp, setModalApp] = useState<Application | null>(null);
+  const [editApp, setEditApp] = useState<Application | null>(null);
 
   const debouncedCompany = useDebounce(companySearch, 400);
 
@@ -60,6 +235,10 @@ export function ApplicationsTable() {
     };
     fetchApplications();
   }, [debouncedCompany, statusFilter]);
+
+  const handleSaveEdit = (updated: Application) => {
+    setApplications((apps) => apps.map((a) => (a.id === updated.id ? updated : a)));
+  };
 
   if (loading) return <div>Loading applications...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -132,12 +311,12 @@ export function ApplicationsTable() {
                   )}
                 </td>
                 <td className="px-4 py-2 space-x-2">
-                  <Link href={`/dashboard/applications/${app.id}`}>
-                    <Button size="sm" variant="outline">View</Button>
-                  </Link>
-                  <Link href={`/dashboard/applications/${app.id}/edit`}>
-                    <Button size="sm" variant="outline">Edit</Button>
-                  </Link>
+                  <Button size="sm" variant="outline" onClick={() => setModalApp(app)}>
+                    View
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setEditApp(app)}>
+                    Edit
+                  </Button>
                   <Button size="sm" variant="destructive" onClick={() => alert(`Delete ${app.id}`)}>
                     Delete
                   </Button>
@@ -147,6 +326,16 @@ export function ApplicationsTable() {
           </tbody>
         </table>
       </div>
+      {modalApp && (
+        <ApplicationModal application={modalApp} onClose={() => setModalApp(null)} />
+      )}
+      {editApp && (
+        <EditApplicationModal
+          application={editApp}
+          onClose={() => setEditApp(null)}
+          onSave={handleSaveEdit}
+        />
+      )}
     </div>
   );
 } 
