@@ -19,6 +19,7 @@ model User {
   applications  Application[]
   leetcodeGoals LeetCodeGoal[]
   weeklyGoals   WeeklyGoal[]
+  problemProgress UserProblemProgress[]
 }
 
 model Application {
@@ -44,9 +45,11 @@ model LeetCodeProblem {
   category    String
   description String
   solution    String?
+  link        String
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   goals       LeetCodeGoal[]
+  userProgress UserProblemProgress[]
 }
 
 model LeetCodeGoal {
@@ -70,4 +73,19 @@ model WeeklyGoal {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   user                  User     @relation(fields: [userId], references: [id])
+}
+
+model UserProblemProgress {
+  id         String   @id @default(cuid())
+  userId     String
+  problemId  String
+  solved     Boolean  @default(false)
+  bookmarked Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id])
+  problem    LeetCodeProblem @relation(fields: [problemId], references: [id])
+
+  @@unique([userId, problemId])
 }
