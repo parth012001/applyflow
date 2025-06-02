@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
+import { PlusIcon, EyeIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 const statusOptions = [
   "",
@@ -280,86 +281,113 @@ export function ApplicationsTable() {
   if (applications.length === 0) return <div>No applications yet. <Link href="/dashboard/applications/new" className="text-blue-600 underline">Add your first</Link>.</div>;
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row gap-4 mb-4 items-center">
-        <input
-          type="text"
-          placeholder="Search by company..."
-          value={companySearch}
-          onChange={(e) => setCompanySearch(e.target.value)}
-          className="border rounded px-3 py-2 w-full md:w-64"
-        />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border rounded px-3 py-2 w-full md:w-48"
-        >
-          {statusOptions.map((option) => (
-            <option key={option} value={option}>
-              {option ? option : "All Statuses"}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead>
-            <tr>
-              <th className="px-4 py-2 text-left">Company</th>
-              <th className="px-4 py-2 text-left">Position</th>
-              <th className="px-4 py-2 text-left">Status</th>
-              <th className="px-4 py-2 text-left">Applied</th>
-              <th className="px-4 py-2 text-left">Follow Up</th>
-              <th className="px-4 py-2 text-left">Notes</th>
-              <th className="px-4 py-2 text-left">Resume</th>
-              <th className="px-4 py-2 text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {applications.map((app) => (
-              <tr key={app.id}>
-                <td className="px-4 py-2">{app.company}</td>
-                <td className="px-4 py-2">{app.position}</td>
-                <td className="px-4 py-2">
-                  <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${
-                    app.status === "Applied"
-                      ? "bg-blue-100 text-blue-800"
-                      : app.status === "Interview"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : app.status === "Offer"
-                      ? "bg-green-100 text-green-800"
-                      : app.status === "Rejected"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}>
-                    {app.status}
-                  </span>
-                </td>
-                <td className="px-4 py-2">{app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : "-"}</td>
-                <td className="px-4 py-2">{app.followUpDate ? new Date(app.followUpDate).toLocaleDateString() : "-"}</td>
-                <td className="px-4 py-2 max-w-xs truncate" title={app.notes}>{app.notes || "-"}</td>
-                <td className="px-4 py-2">
-                  {app.resumeUrl ? (
-                    <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">View</a>
-                  ) : (
-                    "-"
-                  )}
-                </td>
-                <td className="px-4 py-2 space-x-2">
-                  <Button size="sm" variant="outline" onClick={() => setModalApp(app)}>
-                    View
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setEditApp(app)}>
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(app)}>
-                    Delete
-                  </Button>
-                </td>
-              </tr>
+    <div className="relative">
+      {/* Floating Add Button */}
+      <Link href="/dashboard/applications/new">
+        <button className="fixed z-40 bottom-8 right-8 bg-af-orange text-white rounded-full shadow-af p-4 hover:bg-af-blue transition-colors flex items-center gap-2 group">
+          <PlusIcon className="h-6 w-6" />
+          <span className="hidden md:inline font-semibold">Add Application</span>
+        </button>
+      </Link>
+      {/* Card Container */}
+      <div className="bg-white rounded-2xl shadow-af p-6">
+        {/* Search & Filter Bar */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6 items-center bg-af-bg rounded-xl p-4 shadow-sm">
+          <input
+            type="text"
+            placeholder="Search by company..."
+            value={companySearch}
+            onChange={(e) => setCompanySearch(e.target.value)}
+            className="border border-af-blue/20 rounded-lg px-4 py-2 w-full md:w-64 focus:ring-2 focus:ring-af-orange focus:outline-none transition"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border border-af-blue/20 rounded-lg px-4 py-2 w-full md:w-48 focus:ring-2 focus:ring-af-orange focus:outline-none transition"
+          >
+            {statusOptions.map((option) => (
+              <option key={option} value={option}>
+                {option ? option : "All Statuses"}
+              </option>
             ))}
-          </tbody>
-        </table>
+          </select>
+        </div>
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-af-blue/10">
+            <thead className="bg-af-blue/5 sticky top-0 z-10">
+              <tr>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Company</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Position</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Status</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Applied</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Follow Up</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Notes</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Resume</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {applications.map((app, idx) => (
+                <tr key={app.id} className={idx % 2 === 0 ? "bg-af-bg/60" : "bg-white hover:bg-af-orange/10 transition"}>
+                  <td className="px-4 py-3 font-medium text-af-blue">{app.company}</td>
+                  <td className="px-4 py-3">{app.position}</td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold shadow-sm transition-all duration-200
+                      ${app.status === "Applied"
+                        ? "bg-af-blue/10 text-af-blue"
+                        : app.status === "Interview"
+                        ? "bg-af-orange/20 text-af-orange"
+                        : app.status === "Offer"
+                        ? "bg-green-100 text-green-800"
+                        : app.status === "Rejected"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}>
+                      {app.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">{app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : "-"}</td>
+                  <td className="px-4 py-3">{app.followUpDate ? new Date(app.followUpDate).toLocaleDateString() : "-"}</td>
+                  <td className="px-4 py-3 max-w-xs truncate" title={app.notes}>{app.notes || "-"}</td>
+                  <td className="px-4 py-3">
+                    {app.resumeUrl ? (
+                      <a href={app.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-af-orange underline font-semibold">View</a>
+                    ) : (
+                      "-"
+                    )}
+                  </td>
+                  <td className="px-4 py-3 space-x-2 flex items-center">
+                    <button
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-af-blue/10 text-af-blue hover:bg-af-blue/20 transition"
+                      onClick={() => setModalApp(app)}
+                      title="View"
+                    >
+                      <EyeIcon className="h-4 w-4" />
+                      <span className="hidden md:inline">View</span>
+                    </button>
+                    <button
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-af-orange/10 text-af-orange hover:bg-af-orange/20 transition"
+                      onClick={() => setEditApp(app)}
+                      title="Edit"
+                    >
+                      <PencilIcon className="h-4 w-4" />
+                      <span className="hidden md:inline">Edit</span>
+                    </button>
+                    <button
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition"
+                      onClick={() => handleDelete(app)}
+                      title="Delete"
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                      <span className="hidden md:inline">Delete</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       {modalApp && (
         <ApplicationModal application={modalApp} onClose={() => setModalApp(null)} />
