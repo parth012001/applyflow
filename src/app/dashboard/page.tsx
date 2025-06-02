@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
@@ -13,6 +14,7 @@ export default function DashboardPage() {
   const [techPrepStats, setTechPrepStats] = useState({ solved: 0, total: 0, easy: 0, medium: 0, hard: 0 });
   const [pieData, setPieData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchData() {
@@ -55,8 +57,8 @@ export default function DashboardPage() {
             <p className="text-lg text-gray-600">{quote}</p>
           </div>
           <div className="flex gap-2 mt-4 md:mt-0">
-            <Button variant="default">Add New Application</Button>
-            <Button variant="secondary">Start Solving Problems</Button>
+            <Button variant="default" onClick={() => router.push("/dashboard/applications/new")}>Add New Application</Button>
+            <Button variant="secondary" onClick={() => router.push("/dashboard/tech-prep")}>Start Solving Problems</Button>
           </div>
         </div>
 
@@ -142,55 +144,6 @@ export default function DashboardPage() {
                 </div>
               </>
             )}
-          </div>
-        </div>
-
-        {/* Analytics & Insights */}
-        <div className="bg-white rounded-xl shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Analytics & Insights</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <div className="text-sm text-gray-500 mb-1">Conversion Funnel</div>
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <span>Applications</span>
-                  <span className="font-bold">{loading ? "-" : (offers.length + interviews.length)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Interviews</span>
-                  <span className="font-bold">{loading ? "-" : interviews.length}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Offers</span>
-                  <span className="font-bold">{loading ? "-" : offers.length}</span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500 mb-1">Problems Solved (Pie)</div>
-              <ResponsiveContainer width="100%" height={120}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={50}
-                    label
-                  >
-                    {pieData.map((entry, idx) => (
-                      <Cell key={`cell-analytics-${idx}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div>
-              <div className="text-sm text-gray-500 mb-1">Weekly Activity</div>
-              <div className="h-24 flex items-center justify-center text-gray-400">(Coming soon)</div>
-            </div>
           </div>
         </div>
 
