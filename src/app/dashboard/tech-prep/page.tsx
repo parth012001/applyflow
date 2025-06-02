@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { CheckCircleIcon, StarIcon, FireIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/solid';
+import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
 
 interface Problem {
   id: string;
@@ -105,29 +107,48 @@ export default function TechPrepPage() {
   };
 
   return (
-    <div className="py-8 max-w-5xl mx-auto">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">Master These {totalCount} Questions and Nail the Interview!</h1>
-        <p className="text-lg text-gray-600 mb-4">Track your progress, bookmark questions, and get ready to ace your tech interviews.</p>
-        <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
+    <div className="py-10 max-w-6xl mx-auto">
+      {/* Hero Section */}
+      <div className="mb-10 text-center bg-gradient-to-br from-blue-50 via-white to-orange-50 rounded-2xl shadow-af p-8 flex flex-col items-center">
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-2 text-af-blue tracking-tight flex items-center gap-2 justify-center">
+          <FireIcon className="h-8 w-8 text-af-orange animate-bounce" />
+          Master the NeetCode 75
+        </h1>
+        <p className="text-lg md:text-xl text-af-blue/80 mb-4">Track your progress, bookmark questions, and get ready to ace your tech interviews!</p>
+        <div className="w-full max-w-xl bg-gray-200 rounded-full h-5 mb-2 overflow-hidden shadow-inner">
+          {/* DEBUG: Show percent value visually */}
+          <div className="text-xs text-red-500 absolute left-2 top-[-1.5rem]">DEBUG percent: {percent}</div>
           <div
-            className="bg-blue-600 h-4 rounded-full transition-all"
-            style={{ width: `${percent}%` }}
+            className="h-5 rounded-full animate-progress transition-all duration-700"
+            style={{ width: `${percent}%`, background: percent > 0 ? 'orange' : 'transparent' }}
           />
         </div>
-        <div className="text-sm text-gray-700">{solvedCount} / {totalCount} solved ({percent}%)</div>
+        <div className="flex items-center gap-2 text-base md:text-lg text-af-blue font-semibold">
+          <span className="bg-af-orange text-white rounded-full px-3 py-1 shadow-af">{percent}% Complete</span>
+          <span className="text-gray-500">({solvedCount} / {totalCount} solved)</span>
+        </div>
+        {percent >= 80 && (
+          <div className="mt-4 text-2xl font-bold text-green-600 flex items-center gap-2 animate-bounce">
+            <CheckCircleIcon className="h-7 w-7 text-green-500" />
+            Amazing progress! Keep going!
+          </div>
+        )}
+        {percent === 0 && (
+          <div className="mt-4 text-xl font-semibold text-af-orange animate-pulse">Start your journey! Solve your first problem today 🚀</div>
+        )}
       </div>
-      <div className="flex flex-col md:flex-row gap-4 mb-6 items-center">
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col md:flex-row gap-4 mb-8 items-center bg-white rounded-xl shadow-af p-4">
         <Input
           placeholder="Search by title or category..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full md:w-80"
+          className="w-full md:w-80 border-2 border-af-blue/30 rounded-xl focus:ring-2 focus:ring-af-orange focus:border-af-orange text-lg"
         />
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="border rounded px-3 py-2 w-full md:w-48"
+          className="border-2 border-af-blue/30 rounded-xl px-3 py-2 w-full md:w-48 focus:ring-2 focus:ring-af-orange focus:border-af-orange text-lg"
         >
           <option value="">All Difficulties</option>
           <option value="Easy">Easy</option>
@@ -135,56 +156,95 @@ export default function TechPrepPage() {
           <option value="Hard">Hard</option>
         </select>
       </div>
-      {loading ? (
-        <div>Loading problems...</div>
-      ) : error ? (
-        <div className="text-red-500">{error}</div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
+      {/* Problems Table */}
+      <div className="overflow-x-auto bg-white rounded-2xl shadow-af p-4">
+        {loading ? (
+          <div className="text-center text-af-blue text-lg">Loading problems...</div>
+        ) : error ? (
+          <div className="text-red-500 text-center">{error}</div>
+        ) : (
+          <table className="min-w-full divide-y divide-af-blue/10">
+            <thead className="bg-af-blue/5 sticky top-0 z-10">
               <tr>
-                <th className="px-4 py-2 text-left">Title</th>
-                <th className="px-4 py-2 text-left">Difficulty</th>
-                <th className="px-4 py-2 text-left">Category</th>
-                <th className="px-4 py-2 text-left">Solved</th>
-                <th className="px-4 py-2 text-left">Bookmark</th>
-                <th className="px-4 py-2 text-left">Link</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Title</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Difficulty</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Category</th>
+                <th className="px-4 py-3 text-center text-af-blue font-bold">Solved</th>
+                <th className="px-4 py-3 text-center text-af-blue font-bold">Bookmark</th>
+                <th className="px-4 py-3 text-left text-af-blue font-bold">Link</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
-              {filtered.map((p) => (
-                <tr key={p.id}>
-                  <td className="px-4 py-2 font-medium">{p.title}</td>
-                  <td className={`px-4 py-2`}>
-                    <span className={`inline-block rounded px-2 py-1 text-xs font-semibold ${difficultyColors[p.difficulty] || "bg-gray-100 text-gray-800"}`}>{p.difficulty}</span>
+            <tbody>
+              {filtered.map((p, idx) => (
+                <tr key={p.id} className={idx % 2 === 0 ? "bg-af-bg/60" : "bg-white hover:bg-af-orange/10 transition"}>
+                  <td className="px-4 py-3 font-semibold text-af-blue text-base">{p.title}</td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold shadow-sm transition-all duration-200
+                      ${p.difficulty === "Easy"
+                        ? "bg-green-100 text-green-800"
+                        : p.difficulty === "Medium"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : p.difficulty === "Hard"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}>
+                      {p.difficulty === "Easy" && <CheckCircleIcon className="h-4 w-4 text-green-400" />}
+                      {p.difficulty === "Medium" && <FireIcon className="h-4 w-4 text-yellow-400" />}
+                      {p.difficulty === "Hard" && <FireIcon className="h-4 w-4 text-red-400" />}
+                      {p.difficulty}
+                    </span>
                   </td>
-                  <td className="px-4 py-2">{p.category}</td>
-                  <td className="px-4 py-2 text-center">
-                    <input
-                      type="checkbox"
-                      checked={p.solved}
-                      onChange={() => handleToggle(p.id, "solved", p.solved)}
-                      className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
-                    />
+                  <td className="px-4 py-3">{p.category}</td>
+                  <td className="px-4 py-3 text-center">
+                    <button
+                      onClick={() => handleToggle(p.id, "solved", p.solved)}
+                      className={`inline-flex items-center justify-center h-7 w-7 rounded-full border-2 transition-all duration-200
+                        ${p.solved ? "bg-green-500 border-green-500" : "bg-white border-gray-300 hover:bg-green-50"}`}
+                      title={p.solved ? "Mark as unsolved" : "Mark as solved"}
+                    >
+                      {p.solved ? <CheckCircleIcon className="h-5 w-5 text-white" /> : <CheckCircleIcon className="h-5 w-5 text-gray-300" />}
+                    </button>
                   </td>
-                  <td className="px-4 py-2 text-center">
-                    <input
-                      type="checkbox"
-                      checked={p.bookmarked}
-                      onChange={() => handleToggle(p.id, "bookmarked", p.bookmarked)}
-                      className="h-5 w-5 text-yellow-500 rounded focus:ring-yellow-500"
-                    />
+                  <td className="px-4 py-3 text-center">
+                    <button
+                      onClick={() => handleToggle(p.id, "bookmarked", p.bookmarked)}
+                      className={`inline-flex items-center justify-center h-7 w-7 rounded-full border-2 transition-all duration-200
+                        ${p.bookmarked ? "bg-af-orange border-af-orange" : "bg-white border-gray-300 hover:bg-yellow-50"}`}
+                      title={p.bookmarked ? "Remove bookmark" : "Bookmark"}
+                    >
+                      {p.bookmarked ? (
+                        <StarIcon className="h-5 w-5 text-af-orange" />
+                      ) : (
+                        <StarOutlineIcon className="h-5 w-5 text-af-orange" />
+                      )}
+                    </button>
                   </td>
-                  <td className="px-4 py-2">
-                    <a href={p.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">LeetCode</a>
+                  <td className="px-4 py-3">
+                    <a href={p.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-af-blue underline font-semibold hover:text-af-orange transition">
+                      LeetCode
+                      <ArrowTopRightOnSquareIcon className="h-4 w-4" />
+                    </a>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      )}
+        )}
+      </div>
+      <style jsx global>{`
+        @keyframes progress {
+          0% { width: 0; }
+        }
+        .animate-progress {
+          animation: progress 1s cubic-bezier(.4,2,.6,1);
+        }
+        .animate-bounce {
+          animation: bounce 1.2s infinite alternate;
+        }
+        .animate-pulse {
+          animation: pulse 1.5s cubic-bezier(.4,0,.6,1) infinite;
+        }
+      `}</style>
     </div>
   );
 } 
