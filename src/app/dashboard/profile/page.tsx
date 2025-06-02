@@ -35,7 +35,7 @@ export default function ProfilePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <ProfileForm user={session?.user} />
+              <ProfileForm user={session?.user && "id" in session.user ? session.user as { id: string; name?: string | null; email?: string | null; image?: string | null } : undefined} />
             </CardContent>
           </Card>
         </TabsContent>

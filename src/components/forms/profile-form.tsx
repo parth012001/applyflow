@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export function ProfileForm() {
+export function ProfileForm({ user }: { user?: { id: string; name?: string | null; email?: string | null; image?: string | null } }) {
   const { data: session, update } = useSession();
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState(session?.user?.name || "");
+  const [name, setName] = useState(user?.name || session?.user?.name || "");
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,7 +66,7 @@ export function ProfileForm() {
           <Input
             id="email"
             type="email"
-            value={session?.user?.email || ""}
+            value={user?.email || session?.user?.email || ""}
             disabled
             className="bg-gray-50"
           />

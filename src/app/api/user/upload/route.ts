@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth/auth.config";
 import { v2 as cloudinary } from "cloudinary";
 import { prisma } from "@/lib/prisma";
+import { Session } from "next-auth";
 
 // Configure Cloudinary
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
@@ -22,7 +23,7 @@ cloudinary.config({
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as Session;
     if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Unauthorized" },
