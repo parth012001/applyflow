@@ -4,6 +4,7 @@ import { getToken } from "next-auth/jwt";
 
 // Add paths that should be accessible without authentication
 const publicPaths = [
+  "/",  // Home page
   "/login",
   "/signup",
   "/api/auth/login",
@@ -24,18 +25,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  try {
-    const token = await getToken({ req: request });
-    
-    if (!token) {
+  // Check if the path starts with /dashboard
+  if (pathname.startsWith("/dashboard")) {
+    try {
+      const token = await getToken({ req: request });
+      
+      if (!token) {
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
+
+      return NextResponse.next();
+    } catch (error) {
+      console.error("Auth error:", error);
       return NextResponse.redirect(new URL("/login", request.url));
     }
-
-    return NextResponse.next();
-  } catch (error) {
-    console.error("Auth error:", error);
-    return NextResponse.redirect(new URL("/login", request.url));
   }
+
+  return NextResponse.next();
 }
 
 // Configure which paths the middleware should run on
