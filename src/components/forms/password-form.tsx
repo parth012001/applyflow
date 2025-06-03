@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ export function PasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -46,7 +47,7 @@ export function PasswordForm() {
       }
 
       setSuccess("Password updated successfully");
-      event.currentTarget.reset();
+      formRef.current?.reset();
     } catch (error) {
       console.error("Password update error:", error);
       setError(error instanceof Error ? error.message : "Something went wrong");
@@ -56,7 +57,7 @@ export function PasswordForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={onSubmit} className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="currentPassword">Current Password</Label>
         <Input
