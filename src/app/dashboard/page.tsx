@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { BriefcaseIcon, PhoneIcon, CheckCircleIcon, UserCircleIcon } from "@heroicons/react/24/solid";
@@ -23,6 +24,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [quoteIdx, setQuoteIdx] = useState(0);
   const router = useRouter();
+  const { data: session } = useSession();
 
   // Rotate motivational quote every 7 seconds
   useEffect(() => {
@@ -66,7 +68,9 @@ export default function DashboardPage() {
         {/* Greeting & Motivation */}
         <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white/80 backdrop-blur rounded-2xl shadow-xl p-8 border border-blue-100">
           <div>
-            <h1 className="text-4xl font-extrabold mb-1 text-gray-900 tracking-tight">Welcome back, Partha!</h1>
+            <h1 className="text-4xl font-extrabold mb-1 text-gray-900 tracking-tight">
+              Welcome back, {session?.user?.name || "there"}!
+            </h1>
             <p className="text-lg text-indigo-700 font-medium transition-all duration-500 min-h-[28px]">{QUOTES[quoteIdx]}</p>
           </div>
           <div className="flex gap-3 mt-4 md:mt-0">
