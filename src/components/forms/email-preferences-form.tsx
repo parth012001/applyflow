@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
-export function EmailPreferencesForm() {
+export function EmailPreferencesForm({ disabled = false }: { disabled?: boolean }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -17,6 +17,7 @@ export function EmailPreferencesForm() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (disabled) return;
     setIsLoading(true);
     setError(null);
     setSuccess(null);
@@ -63,7 +64,7 @@ export function EmailPreferencesForm() {
                 applicationUpdates: checked,
               }))
             }
-            disabled={isLoading}
+            disabled={isLoading || disabled}
           />
         </div>
 
@@ -82,7 +83,7 @@ export function EmailPreferencesForm() {
                 interviewReminders: checked,
               }))
             }
-            disabled={isLoading}
+            disabled={isLoading || disabled}
           />
         </div>
 
@@ -101,7 +102,7 @@ export function EmailPreferencesForm() {
                 marketingEmails: checked,
               }))
             }
-            disabled={isLoading}
+            disabled={isLoading || disabled}
           />
         </div>
       </div>
@@ -118,7 +119,7 @@ export function EmailPreferencesForm() {
         </div>
       )}
 
-      <Button type="submit" disabled={isLoading}>
+      <Button type="submit" disabled={isLoading || disabled}>
         {isLoading ? "Updating..." : "Update Preferences"}
       </Button>
     </form>

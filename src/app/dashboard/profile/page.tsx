@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileForm } from "@/components/forms/profile-form";
 import { PasswordForm } from "@/components/forms/password-form";
 import { EmailPreferencesForm } from "@/components/forms/email-preferences-form";
-import { DeleteAccountForm } from "@/components/forms/delete-account-form";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
@@ -23,7 +22,6 @@ export default function ProfilePage() {
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="password">Password</TabsTrigger>
           <TabsTrigger value="email">Email Preferences</TabsTrigger>
-          <TabsTrigger value="delete">Delete Account</TabsTrigger>
         </TabsList>
 
         <TabsContent value="profile">
@@ -55,29 +53,19 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="email">
-          <Card>
+          <Card className="relative">
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/40 pointer-events-none">
+              <span className="text-lg font-semibold text-gray-700 mb-2">Coming Soon</span>
+              <span className="text-sm text-gray-500">Email preferences will be available in a future update.</span>
+            </div>
             <CardHeader>
               <CardTitle>Email Preferences</CardTitle>
               <CardDescription>
                 Manage your email notification settings
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <EmailPreferencesForm />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="delete">
-          <Card>
-            <CardHeader>
-              <CardTitle>Delete Account</CardTitle>
-              <CardDescription>
-                Permanently delete your account and all associated data
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DeleteAccountForm />
+            <CardContent aria-disabled>
+              <EmailPreferencesForm disabled />
             </CardContent>
           </Card>
         </TabsContent>
