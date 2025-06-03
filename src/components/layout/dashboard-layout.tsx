@@ -12,6 +12,7 @@ import {
   Bars3Icon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { signOut } from "next-auth/react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
@@ -128,6 +129,15 @@ export default function DashboardLayout({
               >
                 <UserCircleIcon className="h-6 w-6" />
               </Link>
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="ml-4 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500"
+                title="Sign out"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
